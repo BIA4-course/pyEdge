@@ -8,11 +8,19 @@ from skimage.io import imread, imsave
 from skimage.feature import canny
 from skimage.filters import sobel, prewitt
 import sys
+import argparse as ap
 
-# TODO: these should be passed by the user
-# if no output filename is passed, it should be generated automatically
-input_filename = "test_images/DAPI.png"
-output_filename = "DAPI_edges.png"
+# Create a parser for command line arguments
+parser = ap.ArgumentParser()
+parser.add_argument("-i", "--input", required=True, help="The input filename")
+parser.add_argument("-o", "--output", required=False, help="The output filename")
+
+# This creates a dictionary of the parameters
+# e.g. {"input": "filename.jpg", "output": "filename_edges.jpg"}
+params = vars(parser.parse_args())
+
+input_filename = params['input']
+output_filename = params['output']
 
 def plot_results(img, img_edges, cmap="gray"):
     """Plots the results of edge detection
