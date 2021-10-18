@@ -13,14 +13,20 @@ import argparse as ap
 # Create a parser for command line arguments
 parser = ap.ArgumentParser()
 parser.add_argument("-i", "--input", required=True, help="The input filename")
-parser.add_argument("-o", "--output", required=False, help="The output filename")
+parser.add_argument("-o", "--output", required=False, help="The output filename. If not specified, _edges is appended to the input filename.")
 
 # This creates a dictionary of the parameters
 # e.g. {"input": "filename.jpg", "output": "filename_edges.jpg"}
 params = vars(parser.parse_args())
 
 input_filename = params['input']
-output_filename = params['output']
+
+if params['output'] is None:
+    input_split = input_filename.split(".")   
+    output_filename = input_split[0] + "_edges." + input_split[1]
+    print(f"No output file specified, automatically saving to {output_filename}")
+else:
+    output_filename = params['output']
 
 def plot_results(img, img_edges, cmap="gray"):
     """Plots the results of edge detection
