@@ -8,11 +8,9 @@ from skimage.io import imread, imsave
 from skimage.feature import canny
 from skimage.filters import sobel, prewitt
 import sys
+import argparse as ap
+import PySimpleGUI as sg
 
-# TODO: these should be passed by the user
-# if no output filename is passed, it should be generated automatically
-input_filename = "test_images/DAPI.png"
-output_filename = "DAPI_edges.png"
 
 def plot_results(img, img_edges, cmap="gray"):
     """Plots the results of edge detection
@@ -34,17 +32,18 @@ def plot_results(img, img_edges, cmap="gray"):
 
     plt.show()
 
+
 def detect_edges(img, method="canny"):
     """Detect edges in an image
 
     Args:
         img (np.array): The image
         method (str, optional): The edge-detecting algorithm. Defaults to "canny".
-    
+
     Returns (np.array): The edges of the image
     """
 
-    if method == "canny":        
+    if method == "canny":
         return canny(img, sigma=7)
     elif method == "prewitt":
         return prewitt(img)
@@ -53,13 +52,33 @@ def detect_edges(img, method="canny"):
     else:
         sys.exit(f"{method} is an unsupported edge-detecting method!")
 
-# Read image
-img = imread(input_filename)
-# Detect edges
-# TODO: user should choose edge detecting algorithm
-img_edges = detect_edges(img, "sobel")
 
-plot_results(img, img_edges)
+sg.theme("DarkTeal7")
 
-# Save to file
-imsave(fname=output_filename, arr=img_edges)
+# The layout of our GUI
+layout = [
+    [sg.Text("Edge detection")],    
+    [sg.Text("Input image"), sg.FileBrowse(key="input_image")],
+    [sg.Text("Method"), sg.Combo(["canny", "prewitt", "sobel"],
+                                 key="method", default_value="canny")],    
+    [sg.Text("Output image"), sg.FileBrowse(key="output_image")],    
+    [sg.Button("Detect edges"), sg.Button("Exit")]
+]
+
+while(True):
+    event, values = sg.Window("Edge detection", layout).read()
+    if event == "Exit":
+        break
+    elif event == "Detect edges":
+        if values["input_image"] == "":
+            sg.popup("Please select an input image!")
+            continue
+        print(values)
+        # Read the image
+        img = imread(values["input_image"])
+        # Detect edges
+        img_edges = detect_edges(img, values["method"])
+        # Plot the results
+        plot_results(img, img_edges)
+        # Save the image
+        imsave(values["Output image"], img_edges)
