@@ -61,19 +61,20 @@ layout = [
     [sg.Text("Input image"), sg.FileBrowse(key="input_image")],
     [sg.Text("Method"), sg.Combo(["canny", "prewitt", "sobel"],
                                  key="method", default_value="canny")],    
-    [sg.Text("Output image"), sg.FileBrowse(key="output_image")],    
+    # Add an input text field called "Output image" with key output_image
+    [sg.Text("Output image"), sg.InputText(key="output_image")],
     [sg.Button("Detect edges"), sg.Button("Exit")]
 ]
 
 while(True):
     event, values = sg.Window("Edge detection", layout).read()
     if event == "Exit":
+        sg.Window.close()
         break
     elif event == "Detect edges":
         if values["input_image"] == "":
             sg.popup("Please select an input image!")
-            continue
-        print(values)
+            continue        
         # Read the image
         img = imread(values["input_image"])
         # Detect edges
@@ -81,4 +82,8 @@ while(True):
         # Plot the results
         plot_results(img, img_edges)
         # Save the image
-        imsave(values["Output image"], img_edges)
+        out = values["output_image"]
+        if out == "":
+            out = values['input_image'].split(".")[0] + "_edges." + values['input_image'].split(".")[1]
+
+        imsave(out, img_edges)    
